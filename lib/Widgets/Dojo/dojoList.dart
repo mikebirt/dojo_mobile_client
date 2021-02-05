@@ -16,8 +16,6 @@ class _DojoListState extends State<DojoList> {
 
   @override
   void initState() {
-    debugPrint('dojoList.initState');
-
     dojoSvc = DojoDataService();
 
     loadDojoList();
@@ -27,8 +25,6 @@ class _DojoListState extends State<DojoList> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('dojoList.build');
-
     return ListView.builder(
         itemCount: dojoList == null ? 0 : dojoList.length,
         itemBuilder: (BuildContext context, int position) {
@@ -48,12 +44,9 @@ class _DojoListState extends State<DojoList> {
     final List dojos = await dojoSvc.getDojos();
 
     if (dojos != null) {
-      debugPrint('dojoList.loadDojoList length : ' + dojos?.length?.toString());
       setState(() {
         dojoList = dojos;
       });
-    } else {
-      debugPrint('dojoList.loadDojoList no dojos returned');
     }
   }
 }

@@ -8,10 +8,14 @@ class SessionProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      Expanded(child: Text(completed.toString(), textAlign: TextAlign.right)),
-      Text("of"),
-      Expanded(child: Text(total.toString()))
-    ]);
+    // if total hasn't been set yet (because the verbs haven't loaded yet...)
+    if (completed > total) {
+      return Container();
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(20),
+      child: LinearProgressIndicator(minHeight: 30, value: completed / total),
+    );
   }
 }

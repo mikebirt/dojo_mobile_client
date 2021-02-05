@@ -27,8 +27,9 @@ class _VerbSessionState extends State<VerbSession> {
   bool attemptWasCorrect;
   bool preventUserEntry;
   DojoDataService dojoSvc;
-  String userAttempt;
   FocusNode inputFocusNode;
+  TextEditingController verbEntryController;
+  int numberAnsweredCorrectly = 0;
 
   _VerbSessionState(this.dojo);
 
@@ -37,11 +38,17 @@ class _VerbSessionState extends State<VerbSession> {
     dojoSvc = DojoDataService();
 
     currentVerbIndex = 0;
-    userAttempt = '';
     readyToProgress = false;
     attemptWasCorrect = false;
     preventUserEntry = false;
     inputFocusNode = FocusNode();
+    verbEntryController = new TextEditingController();
+
+    verbEntryController.addListener(() {
+      setState(() {
+        // set nothing - just force the re-evaluation
+      });
+    });
 
     loadVerbsList();
 
@@ -51,23 +58,19 @@ class _VerbSessionState extends State<VerbSession> {
   @override
   void dispose() {
     inputFocusNode.dispose();
-
+    verbEntryController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('userAttempt: ' + userAttempt);
-    debugPrint('attemptWasCorrect : ' + attemptWasCorrect.toString());
-
     return Column(children: [
       SessionProgress(
           verbList != null ? verbList.length : 0, currentVerbIndex + 1),
-      Padding(
-          padding: EdgeInsets.fromLTRB(0, 90, 0, 20),
-          child: Text(currentVerb().italian, style: Styles.largeTextSyle)),
+      Spacer(),
+      Text(currentVerb().italian, style: Styles.largeTextSyle),
       TextField(
-        controller: TextEditingController(text: userAttempt),
+        controller: verbEntryController,
         textAlign: TextAlign.center,
         style: Styles.generalTextSyle,
         decoration: InputDecoration(
@@ -76,11 +79,6 @@ class _VerbSessionState extends State<VerbSession> {
         autofocus: true,
         readOnly: preventUserEntry,
         focusNode: inputFocusNode,
-        onSubmitted: (text) {
-          setState(() {
-            userAttempt = text;
-          });
-        },
       ),
       (readyToProgress == false
           ? Container()
@@ -88,10 +86,12 @@ class _VerbSessionState extends State<VerbSession> {
               padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
               child: Text(getCheckResultMessage(),
                   style: Styles.generalTextSyle))),
-      Spacer(),
+      Spacer(
+        flex: 2,
+      ),
       VerbButton(
           text: readyToProgress == true ? "Next" : "Check",
-          onPressed: userAttempt == '' ? null : handleOnPressed,
+          onPressed: verbEntryController.text == '' ? null : handleOnPressed,
           backgroundColour: readyToProgress == false
               ? Colors.green
               : attemptWasCorrect == true
@@ -108,9 +108,12 @@ class _VerbSessionState extends State<VerbSession> {
 
   void handleOnPressed() {
     if (readyToProgress == false) {
-      final isCorrect = VerbValidation.test(currentVerb().english, userAttempt);
+      final isCorrect =
+          VerbValidation.test(currentVerb().english, verbEntryController.text);
 
       setState(() {
+        numberAnsweredCorrectly =
+            numberAnsweredCorrectly + (isCorrect == true ? 1 : 0);
         readyToProgress = true;
         preventUserEntry = true;
         attemptWasCorrect = isCorrect;
@@ -118,15 +121,16 @@ class _VerbSessionState extends State<VerbSession> {
     } else {
       if (1 + currentVerbIndex == verbList.length) {
         MaterialPageRoute route = MaterialPageRoute(
-            builder: (_) => SessionReviewView(dojo, verbList.length));
+            builder: (_) => SessionReviewView(
+                dojo, verbList.length, numberAnsweredCorrectly));
         Navigator.push(context, route);
       } else {
         setState(() {
           currentVerbIndex = currentVerbIndex + 1;
-          userAttempt = '';
           readyToProgress = false;
           attemptWasCorrect = false;
           preventUserEntry = false;
+          this.verbEntryController.text = '';
         });
 
         inputFocusNode.requestFocus();
