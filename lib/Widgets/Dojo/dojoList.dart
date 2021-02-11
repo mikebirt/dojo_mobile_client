@@ -1,52 +1,46 @@
 import 'package:flutter/material.dart';
-
-import 'package:verb_client/DataServices/dojoDataService.dart';
+import 'package:verb_client/Domain/dojo.dart';
+import 'package:verb_client/Domain/dojoSummary.dart';
 import 'package:verb_client/Widgets/Verb/VerbSessionView.dart';
 
 import '../styles.dart';
 
-class DojoList extends StatefulWidget {
-  @override
-  _DojoListState createState() => _DojoListState();
-}
+class DojoList extends StatelessWidget {
+  final List<DojoSummary> dojoSummaries;
 
-class _DojoListState extends State<DojoList> {
-  List dojoList;
-  DojoDataService dojoSvc;
-
-  @override
-  void initState() {
-    dojoSvc = DojoDataService();
-
-    loadDojoList();
-
-    super.initState();
-  }
+  DojoList(this.dojoSummaries);
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        itemCount: dojoList == null ? 0 : dojoList.length,
+        itemCount: dojoSummaries == null ? 0 : dojoSummaries.length,
         itemBuilder: (BuildContext context, int position) {
           return Card(
               child: ListTile(
-            title: Text(dojoList[position].name, style: Styles.generalTextSyle),
+            title: Text(dojoSummaries[position].name,
+                style: Styles.generalTextSyle),
+            subtitle: Text(getDojoSubtitle(dojoSummaries[position])),
             onTap: () {
               MaterialPageRoute route = MaterialPageRoute(
-                  builder: (_) => VerbSessionView(dojoList[position]));
+                  builder: (_) => VerbSessionView(
+                      Dojo(dojoSummaries[position].id,
+                          dojoSummaries[position].name),
+                      dojoSummaries[position].dbSessionSummaryId));
               Navigator.push(context, route);
             },
           ));
         });
   }
 
-  void loadDojoList() async {
-    final List dojos = await dojoSvc.getDojos();
-
-    if (dojos != null) {
-      setState(() {
-        dojoList = dojos;
-      });
+  String getDojoSubtitle(DojoSummary dojo) {
+    if (dojo.score == null) {
+      return '';
     }
+
+    String lastScore = dojo.score.correctlyAnswered.toString() +
+        ' / ' +
+        dojo.score.numberOfVerbs.toString();
+
+    return lastScore + ' on ' + dojo.lastPractise;
   }
 }

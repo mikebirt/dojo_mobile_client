@@ -1,56 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:verb_client/Blocs/dojoBloc.dart';
 
-import 'package:verb_client/DataServices/dojoDataService.dart';
 import 'package:verb_client/Domain/dojo.dart';
+import 'package:verb_client/Domain/score.dart';
+import 'package:verb_client/Domain/sessionSummary.dart';
 import 'package:verb_client/Domain/verb.dart';
 import 'package:verb_client/Domain/verbValidation.dart';
 import 'package:verb_client/Widgets/Verb/sessionProgress.dart';
-import 'package:verb_client/Widgets/Verb/sessionReviewView.dart';
+import 'package:verb_client/Widgets/Verb/sessionSummaryView.dart';
 
 import '../VerbButton.dart';
 import '../styles.dart';
 
 class VerbSession extends StatefulWidget {
   final Dojo dojo;
+  final int dojoDbId;
+  final List<Verb> verbList;
 
-  VerbSession(this.dojo);
+  VerbSession(this.verbList, this.dojo, this.dojoDbId);
 
   @override
-  _VerbSessionState createState() => _VerbSessionState(dojo);
+  _VerbSessionState createState() =>
+      _VerbSessionState(verbList, dojo, dojoDbId);
 }
 
 class _VerbSessionState extends State<VerbSession> {
   final Dojo dojo;
-  List verbList;
+  final int dojoDbId;
+  final List<Verb> verbList;
   int currentVerbIndex;
   bool readyToProgress;
   bool attemptWasCorrect;
   bool preventUserEntry;
-  DojoDataService dojoSvc;
   FocusNode inputFocusNode;
   TextEditingController verbEntryController;
   int numberAnsweredCorrectly = 0;
+  DojoBloc dojoBloc;
 
-  _VerbSessionState(this.dojo);
+  _VerbSessionState(this.verbList, this.dojo, this.dojoDbId);
 
   @override
   void initState() {
-    dojoSvc = DojoDataService();
-
     currentVerbIndex = 0;
     readyToProgress = false;
     attemptWasCorrect = false;
     preventUserEntry = false;
     inputFocusNode = FocusNode();
     verbEntryController = new TextEditingController();
+    dojoBloc = DojoBloc();
 
     verbEntryController.addListener(() {
-      setState(() {
-        // set nothing - just force the re-evaluation
-      });
+      setState(() {});
     });
-
-    loadVerbsList();
 
     super.initState();
   }
@@ -68,7 +69,7 @@ class _VerbSessionState extends State<VerbSession> {
       SessionProgress(
           verbList != null ? verbList.length : 0, currentVerbIndex + 1),
       Spacer(),
-      Text(currentVerb().italian, style: Styles.largeTextSyle),
+      Text(_currentVerb().italian, style: Styles.largeTextSyle),
       TextField(
         controller: verbEntryController,
         textAlign: TextAlign.center,
@@ -84,14 +85,14 @@ class _VerbSessionState extends State<VerbSession> {
           ? Container()
           : Padding(
               padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
-              child: Text(getCheckResultMessage(),
+              child: Text(_getCheckResultMessage(),
                   style: Styles.generalTextSyle))),
       Spacer(
         flex: 2,
       ),
       VerbButton(
           text: readyToProgress == true ? "Next" : "Check",
-          onPressed: verbEntryController.text == '' ? null : handleOnPressed,
+          onPressed: verbEntryController.text == '' ? null : _handleOnPressed,
           backgroundColour: readyToProgress == false
               ? Colors.green
               : attemptWasCorrect == true
@@ -100,16 +101,16 @@ class _VerbSessionState extends State<VerbSession> {
     ]);
   }
 
-  String getCheckResultMessage() {
+  String _getCheckResultMessage() {
     return attemptWasCorrect == true
         ? 'Correct!'
         : 'Not quite... It was: ' + currentVerb().english;
   }
 
-  void handleOnPressed() {
+  void _handleOnPressed() {
     if (readyToProgress == false) {
       final isCorrect =
-          VerbValidation.test(currentVerb().english, verbEntryController.text);
+          VerbValidation.test(_currentVerb().english, verbEntryController.text);
 
       setState(() {
         numberAnsweredCorrectly =
@@ -120,10 +121,17 @@ class _VerbSessionState extends State<VerbSession> {
       });
     } else {
       if (1 + currentVerbIndex == verbList.length) {
+        final score = Score(verbList.length, numberAnsweredCorrectly);
+        final newSummary =
+            SessionSummary(dojo.name, dojo.id, score, _getSummaryDate());
+        newSummary.id = dojoDbId;
+
         MaterialPageRoute route = MaterialPageRoute(
-            builder: (_) => SessionReviewView(
-                dojo, verbList.length, numberAnsweredCorrectly));
-        Navigator.push(context, route);
+            builder: (_) => SessionSummaryView(dojo.name, score));
+
+        dojoBloc
+            .storeSummary(newSummary)
+            .then((value) => Navigator.push(context, route));
       } else {
         setState(() {
           currentVerbIndex = currentVerbIndex + 1;
@@ -138,21 +146,20 @@ class _VerbSessionState extends State<VerbSession> {
     }
   }
 
-  Verb currentVerb() {
+  String _getSummaryDate() {
+    final DateTime now = DateTime.now();
+    return now.day.toString() +
+        '/' +
+        now.month.toString() +
+        '/' +
+        now.year.toString();
+  }
+
+  Verb _currentVerb() {
     if (verbList == null || verbList.length == 0) {
       return Verb("", "");
     }
 
     return verbList[currentVerbIndex];
-  }
-
-  void loadVerbsList() async {
-    final List verbs = await dojoSvc.getVerbs(this.dojo.id);
-
-    if (verbs != null) {
-      setState(() {
-        verbList = verbs;
-      });
-    }
   }
 }

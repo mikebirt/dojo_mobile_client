@@ -8,14 +8,15 @@ import 'package:verb_client/Domain/verb.dart';
 import 'httpContants.dart';
 
 class DojoDataService {
-  Future<List> getDojos() async {
+  Future<List<Dojo>> getDojos() async {
     final dojoUrl = HttpConstants.domain + HttpConstants.dojoApi;
     http.Response response = await http.get(dojoUrl);
 
     if (response.statusCode == HttpStatus.ok) {
       final dojoJsonArray = json.decode(response.body);
-      List dojoList =
-          dojoJsonArray.map((dojoJson) => Dojo.fromJson(dojoJson)).toList();
+      List<Dojo> dojoList = dojoJsonArray
+          .map<Dojo>((dojoJson) => Dojo.fromJson(dojoJson))
+          .toList();
 
       return dojoList;
     }
@@ -23,7 +24,7 @@ class DojoDataService {
     return null;
   }
 
-  Future<List> getVerbs(int dojoId) async {
+  Future<List<Verb>> getVerbs(int dojoId) async {
     final verbsUrl =
         HttpConstants.domain + HttpConstants.verbApi + "/" + dojoId.toString();
 
@@ -31,8 +32,9 @@ class DojoDataService {
 
     if (response.statusCode == HttpStatus.ok) {
       final verbJsonArray = json.decode(response.body);
-      List verbList =
-          verbJsonArray.map((verbJson) => Verb.fromJson(verbJson)).toList();
+      List<Verb> verbList = verbJsonArray
+          .map<Verb>((verbJson) => Verb.fromJson(verbJson))
+          .toList();
 
       return verbList;
     }
