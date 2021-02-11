@@ -18,7 +18,7 @@ class DojoBloc {
     return _instance;
   }
 
-  DojoBloc._internal() {}
+  DojoBloc._internal();
 
   Future storeSummary(sessionSummary) async {
     await _db.storeSummary(sessionSummary);

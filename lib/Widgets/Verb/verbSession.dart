@@ -74,6 +74,7 @@ class _VerbSessionState extends State<VerbSession> {
         controller: verbEntryController,
         textAlign: TextAlign.center,
         style: Styles.generalTextSyle,
+        keyboardType: TextInputType.text,
         decoration: InputDecoration(
             hintText: "Enter the English translation",
             hintStyle: Styles.hintTextStyle),
@@ -104,7 +105,7 @@ class _VerbSessionState extends State<VerbSession> {
   String _getCheckResultMessage() {
     return attemptWasCorrect == true
         ? 'Correct!'
-        : 'Not quite... It was: ' + currentVerb().english;
+        : 'Not quite... It was: ' + _currentVerb().english;
   }
 
   void _handleOnPressed() {
