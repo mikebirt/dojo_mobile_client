@@ -132,7 +132,8 @@ class _VerbSessionState extends State<VerbSession> {
 
         dojoBloc
             .storeSummary(newSummary)
-            .then((value) => Navigator.push(context, route));
+            .then((value) => Navigator.push(context, route))
+            .catchError(() => Navigator.push(context, route));
       } else {
         setState(() {
           currentVerbIndex = currentVerbIndex + 1;

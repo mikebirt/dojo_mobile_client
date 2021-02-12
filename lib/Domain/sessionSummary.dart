@@ -19,7 +19,6 @@ class SessionSummary {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'dojoName': dojoName,
       'dojoId': dojoId,
       'score': score.toMap(),
@@ -30,7 +29,7 @@ class SessionSummary {
   String toString() {
     return '{' +
         'id: ' +
-        id?.toString() +
+        (id == null ? 'null' : id.toString()) +
         ',dojoName: ' +
         dojoName +
         ', dojoId: ' +

@@ -24,6 +24,8 @@ class DojoBloc {
     await _db.storeSummary(sessionSummary);
 
     await getSummaries();
+
+    return;
   }
 
   Future<List<DojoSummary>> getSummaries() async {
