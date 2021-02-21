@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:verb_client/Domain/dojo.dart';
-import 'package:verb_client/Domain/dojoSummary.dart';
-import 'package:verb_client/Widgets/Verb/VerbSessionView.dart';
+import 'package:verb_client/Domain/Entities/dojo.dart';
+import 'package:verb_client/Domain/Entities/dojoSummary.dart';
+import 'package:verb_client/Widgets/Verb/verbSessionView.dart';
 
 import '../styles.dart';
 

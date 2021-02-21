@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:core';
 import 'dart:convert';
 import 'package:http/httP.dart' as http;
-import 'package:verb_client/Domain/dojo.dart';
-import 'package:verb_client/Domain/verb.dart';
+import 'package:verb_client/Domain/Entities/dojo.dart';
+import 'package:verb_client/Domain/Entities/verb.dart';
 
 import 'httpContants.dart';
 

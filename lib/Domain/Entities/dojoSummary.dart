@@ -1,4 +1,4 @@
-import 'package:verb_client/Domain/score.dart';
+import 'package:verb_client/Domain/Entities/score.dart';
 
 class DojoSummary {
   int dbSessionSummaryId;

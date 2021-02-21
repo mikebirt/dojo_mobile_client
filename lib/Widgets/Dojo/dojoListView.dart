@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:verb_client/Blocs/dojoBloc.dart';
-import 'package:verb_client/Domain/dojo.dart';
-import 'package:verb_client/Domain/dojoSummary.dart';
+import 'package:verb_client/Domain/Entities/dojo.dart';
+import 'package:verb_client/Domain/Entities/dojoSummary.dart';
 import 'package:verb_client/Widgets/Dojo/dojoList.dart';
 
 class DojoListView extends StatefulWidget {
@@ -20,12 +20,6 @@ class _DojoListViewState extends State<DojoListView> {
     dojoBloc = DojoBloc();
     dojoBloc.getSummaries();
 
-/*
-    dojoBloc.dojoSummaryStream.listen((event) {
-      debugPrint('EVENT ON The STREAM!');
-    });
-*/
-
     super.initState();
   }
 
@@ -40,11 +34,17 @@ class _DojoListViewState extends State<DojoListView> {
   Widget build(BuildContext context) {
     return StreamBuilder<List<DojoSummary>>(
         builder: (context, AsyncSnapshot<List<DojoSummary>> snapshot) {
+          debugPrint('snapshot status: ' +
+              snapshot.connectionState.toString() +
+              ' - ' +
+              snapshot.hasData.toString());
+
           return Scaffold(
               appBar: AppBar(
                 title: Text("Verb Dojo"),
               ),
-              body: snapshot.hasData
+              body: snapshot.hasData &&
+                      snapshot.connectionState != ConnectionState.waiting
                   ? DojoList(snapshot.data)
                   : Center(child: CircularProgressIndicator()));
         },

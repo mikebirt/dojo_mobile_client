@@ -1,18 +1,21 @@
 import 'dart:async';
 
 import 'package:verb_client/DataServices/dojoDataService.dart';
-import 'package:verb_client/Domain/dojoSummary.dart';
-import 'package:verb_client/Domain/sessionSummary.dart';
+import 'package:verb_client/Domain/Entities/dojoSummary.dart';
+import 'package:verb_client/Domain/Entities/sessionSummary.dart';
 import 'package:verb_client/Persistence/sessionSummaryDB.dart';
 
 class DojoBloc {
   static final DojoBloc _instance = DojoBloc._internal();
 
   final _controller = StreamController<List<DojoSummary>>.broadcast();
+  final _summaryController = StreamController<SessionSummary>();
   final SessionSummaryDB _db = SessionSummaryDB();
   final DojoDataService dojoSvc = DojoDataService();
 
   Stream<List<DojoSummary>> get dojoSummaryStream => _controller.stream;
+
+  List<DojoSummary> summariesCache;
 
   factory DojoBloc() {
     return _instance;
@@ -20,12 +23,14 @@ class DojoBloc {
 
   DojoBloc._internal();
 
-  Future storeSummary(sessionSummary) async {
+  Future<SessionSummary> storeSummary(sessionSummary) async {
     await _db.storeSummary(sessionSummary);
 
     await getSummaries();
 
-    return;
+    _summaryController.sink.add(sessionSummary);
+
+    return sessionSummary;
   }
 
   Future<List<DojoSummary>> getSummaries() async {
@@ -45,6 +50,8 @@ class DojoBloc {
           currentSummary?.dojoDate, currentSummary?.id);
     }).toList();
 
+    summariesCache = dojoSummaries;
+
     _controller.sink.add(dojoSummaries);
 
     return dojoSummaries;
@@ -52,5 +59,6 @@ class DojoBloc {
 
   void dispose() {
     _controller.close();
+    _summaryController.close();
   }
 }
