@@ -26,11 +26,17 @@ dependencies:
   http: ^0.12.0+4
   sembast: ^2.3.0
   path_provider: ^1.6.5
-
+  flutter_launcher_icons: ^0.7.3
+  aad_oauth: "^0.2.0"
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
+
+flutter_icons:
+  android: "launcher_icon" 
+  ios: true
+  image_path: "./assets/dojo3.png"  
 
 dev_dependencies:
   flutter_test:
