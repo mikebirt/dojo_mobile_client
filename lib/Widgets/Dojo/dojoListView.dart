@@ -34,11 +34,6 @@ class _DojoListViewState extends State<DojoListView> {
   Widget build(BuildContext context) {
     return StreamBuilder<List<DojoSummary>>(
         builder: (context, AsyncSnapshot<List<DojoSummary>> snapshot) {
-          debugPrint('snapshot status: ' +
-              snapshot.connectionState.toString() +
-              ' - ' +
-              snapshot.hasData.toString());
-
           return Scaffold(
               appBar: AppBar(
                 title: Text("Verb Dojo"),

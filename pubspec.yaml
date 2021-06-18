@@ -25,6 +25,8 @@ dependencies:
     sdk: flutter
   http: ^0.12.0+4
   sembast: ^2.3.0
+  sqflite: ^1.2.0
+  path: ^1.6.4
   path_provider: ^1.6.5
   flutter_launcher_icons: ^0.7.3
   aad_oauth: "^0.2.0"

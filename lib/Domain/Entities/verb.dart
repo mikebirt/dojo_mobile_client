@@ -1,19 +1,24 @@
+import 'package:verb_client/Domain/Entities/conjugation.dart';
+
 class Verb {
-  String _italian;
-  String _english;
+  int _id;
+  int _typeId;
+  String italian;
+  String english;
+  List<Conjugation> conjugations;
 
-  Verb(this._italian, this._english);
+  Verb(this._id, this._typeId, this.italian, this.english);
 
-  String get italian {
-    return _italian;
+  int get id {
+    return _id;
   }
 
-  String get english {
-    return _english;
+  int get typeId {
+    return _typeId;
   }
 
   Verb.fromJson(Map<String, dynamic> dojoJson) {
-    this._italian = dojoJson['italian'];
-    this._english = dojoJson['english'];
+    this.italian = dojoJson['italian'];
+    this.english = dojoJson['english'];
   }
 }
